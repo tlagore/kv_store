@@ -1,6 +1,8 @@
 import socket
+from kv_common.kv_message import KVMessage, KVMessageType
+import pickle
 
-class KeyValueSlave:
+class KVSlave:
     def __init__(self, id, host, port):
         """ """ 
         self._id = id
@@ -12,7 +14,9 @@ class KeyValueSlave:
 
         try:
             sock.connect((self._host, self._port))
-            sock.sendall(bytes("Hello everyone! How are you today???", "utf-8"))
+            msg = KVMessage(KVMessageType.QUERY_TO_COMMIT, "key", "content")
+
+            sock.sendall(pickle.dumps(msg))
 
             received = str(sock.recv(1024), "utf-8")
             print(received)
@@ -20,4 +24,4 @@ class KeyValueSlave:
             sock.close()
 
     def __str__(self):
-        return str("KeyValueSlave ({0}) master host: ({1}),running on port {2}".format(self._id, self._host, self._port))
+        return str("KVSlave ({0}) master host: ({1}),running on port {2}".format(self._id, self._host, self._port))
