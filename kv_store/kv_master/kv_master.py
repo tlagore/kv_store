@@ -4,6 +4,7 @@ import threading
 
 from kv_common.kv_message import KVMessage, KVMessageType
 from kv_common.kv_state import KVState
+from kv_common.kv_common import time_message
 
 class KVMaster():
     def __init__(self, slave_port, client_port):
@@ -20,7 +21,7 @@ class KVMaster():
 
             self._listen_slaves()
         except socket.error as ex:
-            print(self.time_message("Error initializing socket: {0}".format(type(ex).__name__)))
+            print(time_message("Error initializing socket: {0}".format(type(ex).__name__)))
 
     def _listen_slaves(self):
         """Listen for a client"""
@@ -36,10 +37,11 @@ class KVMaster():
         (client, address) = args
         
         try:
+            print(time_message("Client connected"))
             socket = client
             print(socket)
         except:
-            print(self.time_message("Client disconnected: {0}".format(address[0])))
+            print(time_message("Client disconnected: {0}".format(address[0])))
 
     def handle(self):
         data = self.request.recv(1024).strip()
