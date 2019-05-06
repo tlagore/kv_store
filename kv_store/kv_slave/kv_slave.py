@@ -18,8 +18,8 @@ class KVSlave:
 
             sock.sendall(pickle.dumps(msg))
 
-            received = str(sock.recv(1024), "utf-8")
-            print(received)
+            #received = str(sock.recv(1024), "utf-8")
+            #print(received)
         finally:
             sock.close()
 
