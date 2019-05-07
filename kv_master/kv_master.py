@@ -5,6 +5,7 @@ import threading
 from kv_common.kv_message import KVMessage, KVMessageType
 from kv_common.kv_state import KVState
 from kv_common.kv_common import time_message
+from kv_common.kv_socket import KVSocket
 
 class KVMaster():
     def __init__(self, slave_port, client_port):
@@ -35,31 +36,38 @@ class KVMaster():
     def _slave_worker(self, args):
         """Handle a client"""
         (client, address) = args
+        sock = KVSocket(client)
         
         try:
             print(time_message("Client connected"))
-            socket = client
-            print(socket)
+            msg = sock.recv_message()
+            print("Client sends message with message type {0}".format(msg.message_type))
+            resp = KVMessage(KVMessageType.ACK, "key1", "content1")
+            sock.send_message(resp)
         except:
             print(time_message("Client disconnected: {0}".format(address[0])))
 
-    def handle(self):
-        data = self.request.recv(1024).strip()
-        try:
-            msg = pickle.loads(data)
-            self.handle_message(msg)
-        except:
-            print("Error trying to deserialize message")
+    #def handle(self):
+    #    data = self.request.recv(1024).strip()
+    #    try:
+    #        msg = pickle.loads(data)
+    #        self.handle_message(msg)
+    #    except:
+    #        print("Error trying to deserialize message")
 
     def handle_message(self, msg):
         try:
             if(msg.message_type == KVMessageType.QUERY_TO_COMMIT):
+                print("Query to commit")
                 pass
             elif(msg.message_type == KVMessageType.VOTE):
+                print("vote")
                 pass
             elif(msg.message_type == KVMessageType.COMMIT):
+                print("commit")
                 pass
             elif(msg.message_type == KVMessageType.ROLLBACK):
+                print("rollback")
                 pass
             else:
                 print("Message type not supported")

@@ -1,5 +1,6 @@
 import socket
 from kv_common.kv_message import KVMessage, KVMessageType
+from kv_common.kv_socket import KVSocket
 import pickle
 
 class KVSlave:
@@ -16,7 +17,11 @@ class KVSlave:
             sock.connect((self._host, self._port))
             msg = KVMessage(KVMessageType.QUERY_TO_COMMIT, "key", "content")
 
-            sock.sendall(pickle.dumps(msg))
+            self._master_socket = KVSocket(sock)
+            self._master_socket.send_message(msg)
+
+            resp = self._master_socket.recv_message()
+            print("Master says {0}".format(resp.message_type))
 
             #received = str(sock.recv(1024), "utf-8")
             #print(received)
