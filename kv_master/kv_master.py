@@ -17,7 +17,7 @@ class KVMaster():
     def start(self):
         self._client_listener = KVClientListener(1, "client", self._client_port)
         self._client_listener.start_listening()
-        self._slave_listener = KVClientListener(2, "slave", self._slave_port)
+        self._slave_listener = KVSlaveListener(2, "slave", self._slave_port)
         self._slave_listener.start_listening()
 
         self._client_listener._client_thread.join()
