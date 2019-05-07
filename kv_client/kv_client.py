@@ -2,7 +2,7 @@ import socket
 from kv_common.kv_message import KVMessage, KVMessageType
 from kv_common.kv_socket import KVSocket
 
-class KVSlave:
+class KVClient:
     def __init__(self, id, host, port):
         """ """ 
         self._id = id
@@ -26,4 +26,4 @@ class KVSlave:
             sock.close()
 
     def __str__(self):
-        return str("KVSlave ({0}) master host: ({1}),running on port {2}".format(self._id, self._host, self._port))
+        return str("KVClient ({0}) master host: ({1}),running on port {2}".format(self._id, self._host, self._port))
