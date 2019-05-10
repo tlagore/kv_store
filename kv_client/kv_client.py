@@ -14,7 +14,7 @@ class KVClient:
 
         try:
             sock.connect((self._host, self._port))
-            msg = KVMessage(KVMessageType.QUERY_TO_COMMIT, "key", "content")
+            msg = KVMessage(KVMessageType.PUT, "key", "content")
 
             self._master_socket = KVSocket(sock)
             self._master_socket.send_message(msg)

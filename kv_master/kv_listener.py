@@ -58,57 +58,46 @@ class KVListener(ABC):
         print(self.__str__())
         print("Exitting....")
 
-    @abstractmethod
+
     def _worker(self, args):
         """Handle a client"""
-        pass
+        (client, address) = args
 
-    #@abstractmethod
-    #def _handle_message(self, msg):
-    #    """ abstract, handle a message received from a client """
-    #    pass
+        sock = KVSocket(client)
+        print(time_message("{0}:{1} worker, got client: {2}".format(self._name, self._id, address)))
+        self._listening = False
+
+        try:
+            msg = sock.recv_message()
+            self._handle_message(msg, sock)
+        except:
+            print(time_message("Client disconnected: {0}".format(address[0])))
+
+    def shutdown(self):
+        try:
+            self._socket.shutdown(socket.SHUT_RDWR)
+            self._socket.close()
+        except Exception as ex:
+            print(time_message("Exception when shutting down socket: {0}".format(str(ex))))
+
+    @abstractmethod
+    def _handle_message(self, msg, client):
+       """ abstract, handle a message received from a client """
+       pass
 
     def __str__(self):
         return str("Listener {0}:({1}) listening on port {2}".format(self._name, self._id, self._port))
 
 class KVSlaveListener(KVListener):
-    def _worker(self, args):
-        (client, address) = args
-
-        sock = KVSocket(client)
-        print("KVSlaveListener worker! {0}".format(address))
-        self._listening = False
-
-        try:
-            print(time_message("Client connected"))
-            msg = sock.recv_message()
-            print("Client sends message with message type {0}".format(msg.message_type))
-            resp = KVMessage(KVMessageType.ACK, "key1", "content1")
-            sock.send_message(resp)
-        except:
-            print(time_message("Client disconnected: {0}".format(address[0])))
-
-        with self._listen_lock:
-            self._socket.shutdown(socket.SHUT_RDWR)
-        self._socket.close()
+    def _handle_message(self, msg, client):
+        print(time_message("{0}:{1} - message: {2}".format(self._name, self._id, msg)))
+        resp = KVMessage(KVMessageType.ACK, "key", "content")
+        client.send_message(resp)
+        self.shutdown()
 
 class KVClientListener(KVListener):
-    def _worker(self, args):
-        (client, address) = args
-
-        sock = KVSocket(client)
-        print("KVClientListener worker! {0}".format(address))
-
-        try:
-            print(time_message("Client connected"))
-            msg = sock.recv_message()
-            print("Client sends message with message type {0}".format(msg.message_type))
-            resp = KVMessage(KVMessageType.ACK, "key1", "content1")
-            sock.send_message(resp)
-        except:
-            print(time_message("Client disconnected: {0}".format(address[0])))
-            
-        with self._listen_lock:
-            self._socket.shutdown(socket.SHUT_RDWR)
-        self._listening = False
-        self._socket.close()
+    def _handle_message(self, msg, client):
+        print(time_message("{0}:{1} - message: {2}".format(self._name, self._id, msg)))
+        resp = KVMessage(KVMessageType.ACK, "key", "content")
+        client.send_message(resp)
+        self.shutdown()
